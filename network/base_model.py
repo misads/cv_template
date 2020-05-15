@@ -30,7 +30,8 @@ class BaseModel(torch.nn.Module):
 
     # helper saving function that can be used by subclasses
     def save_network(self, network, network_label, epoch_label):
-        warnings.warn('model.save_network() is deprecated now, use model.save() instead', DeprecationWarning)
+        warnings.warn('model.load_network() is deprecated now, use model.load() instead', DeprecationWarning)
+        color_print('DeprecationWarning: model.load_network() is deprecated now, use model.load() instead', 1)
         save_filename = '%s_net_%s.pt' % (epoch_label, network_label)
         save_path = os.path.join(self.save_dir, save_filename)
         torch.save(network.state_dict(), save_path)
@@ -38,6 +39,7 @@ class BaseModel(torch.nn.Module):
     # helper loading function that can be used by subclasses
     def load_network(self, network, network_label, epoch_label, save_dir=''):
         warnings.warn('model.load_network() is deprecated now, use model.load() instead', DeprecationWarning)
+        color_print('DeprecationWarning: model.load_network() is deprecated now, use model.load() instead', 1)
         save_filename = '%s_net_%s.pt' % (epoch_label, network_label)
         if not save_dir:
             save_dir = self.save_dir
