@@ -124,8 +124,8 @@ def save_checkpoint(save_dict, filename):
             if hasattr(model, 'module'):
                 save_dict[key] = model.module
 
-            if hasattr(save_dict[key], 'state_dict'):
-                save_dict[key] = save_dict[key].state_dict()
+        if hasattr(save_dict[key], 'state_dict'):
+            save_dict[key] = save_dict[key].state_dict()
 
     torch.save(save_dict, filename)
 
