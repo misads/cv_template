@@ -101,7 +101,6 @@ if __name__ == '__main__':
         print('Usage: eval.py [--tag TAG] --load LOAD')
         raise_exception('eval.py: the following arguments are required: --load')
 
-    logger = init_log(training=False)
     log_root = os.path.join(opt.result_dir, opt.tag, str(opt.which_epoch))
     utils.try_make_dir(log_root)
 
@@ -109,10 +108,11 @@ if __name__ == '__main__':
     model = Model(opt)
     model = model.to(device=opt.device)
 
-    load_epoch = model.load(opt.load)
+    opt.which_epoch = load_epoch = model.load(opt.load)
 
     model.eval()
     writer = create_summary_writer(log_root)
 
+    logger = init_log(training=False)
     evaluate(model, dl.val_dataloader, load_epoch, writer, logger, 'val')
 
