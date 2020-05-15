@@ -1,9 +1,9 @@
 # encoding=utf-8
 
-# from skimage.measure import compare_psnr as psnr
-# from skimage.measure import compare_ssim as ski_ssim  # deprecated
-from skimage.metrics import peak_signal_noise_ratio as psnr
-from skimage.metrics import structural_similarity as ski_ssim
+from skimage.measure import compare_psnr as psnr
+from skimage.measure import compare_ssim as ski_ssim  # deprecated
+# from skimage.metrics import peak_signal_noise_ratio as psnr
+# from skimage.metrics import structural_similarity as ski_ssim
 
 import pdb
 
