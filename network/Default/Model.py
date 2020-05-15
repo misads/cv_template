@@ -68,7 +68,7 @@ class Model(BaseModel):
         loss.backward()
         self.g_optimizer.step()
 
-        return cleaned
+        return {'restored': cleaned}
 
     def forward(self, x):
         return self.cleaner(x)
