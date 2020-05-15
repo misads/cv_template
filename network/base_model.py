@@ -9,6 +9,14 @@ from misc_utils import color_print
 from options import opt
 
 
+def deprecated(info=''):
+    def decorator(fn):
+        warnings.warn(info, DeprecationWarning)
+        color_print(f'DeprecationWarning: {info}', 1)
+        return fn
+    return decorator
+
+
 class BaseModel(torch.nn.Module):
     def __init__(self):
         super(BaseModel, self).__init__()
@@ -29,17 +37,15 @@ class BaseModel(torch.nn.Module):
         pass
 
     # helper saving function that can be used by subclasses
+    @deprecated('model.save_network() is deprecated now, use model.save() instead')
     def save_network(self, network, network_label, epoch_label):
-        warnings.warn('model.load_network() is deprecated now, use model.load() instead', DeprecationWarning)
-        color_print('DeprecationWarning: model.load_network() is deprecated now, use model.load() instead', 1)
         save_filename = '%s_net_%s.pt' % (epoch_label, network_label)
         save_path = os.path.join(self.save_dir, save_filename)
         torch.save(network.state_dict(), save_path)
 
     # helper loading function that can be used by subclasses
+    @deprecated('model.load_network() is deprecated now, use model.load() instead')
     def load_network(self, network, network_label, epoch_label, save_dir=''):
-        warnings.warn('model.load_network() is deprecated now, use model.load() instead', DeprecationWarning)
-        color_print('DeprecationWarning: model.load_network() is deprecated now, use model.load() instead', 1)
         save_filename = '%s_net_%s.pt' % (epoch_label, network_label)
         if not save_dir:
             save_dir = self.save_dir

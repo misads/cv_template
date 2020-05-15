@@ -13,18 +13,10 @@ from scheduler import get_scheduler
 
 from network.base_model import BaseModel
 from mscv import ExponentialMovingAverage, print_network, load_checkpoint, save_checkpoint
+# from mscv.cnn import normal_init
 from loss import criterionL1, criterionSSIM, grad_loss, vgg_loss
 
 import misc_utils as utils
-
-
-def weights_init(m):
-    classname = m.__class__.__name__
-    if classname.find('Conv') != -1:
-        m.weight.data.normal_(0.0, 0.02)
-    elif classname.find('BatchNorm2d') != -1:
-        m.weight.data.normal_(1.0, 0.02)
-        m.bias.data.fill_(0)
 
 
 class Model(BaseModel):
@@ -35,7 +27,7 @@ class Model(BaseModel):
         #####################
         #    Init weights
         #####################
-        # self.cleaner.apply(weights_init)
+        # normal_init(self.cleaner)
 
         print_network(self.cleaner)
 
