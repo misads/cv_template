@@ -98,7 +98,7 @@ class Model(BaseModel):
             utils.color_print('Load checkpoint from %s.' % ckpt_path, 3)
 
         ckpt_info = load_checkpoint(load_dict, ckpt_path, map_location=opt.device)
-        epoch = ckpt_info.get('epoch', default=0)
+        epoch = ckpt_info.get('epoch', 0)
 
         return epoch
 

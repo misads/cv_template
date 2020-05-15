@@ -83,8 +83,8 @@ def evaluate(model, dataloader, epoch, writer, logger, data_name='val'):
         ave_ssim = total_ssim / float(ct_num)
         # write_loss(writer, f'val/{data_name}', 'psnr', total_psnr / float(ct_num), epochs)
 
-        logger.info(f'Eva({data_name}) epoch {epoch} , psnr: {ave_psnr : .6f}.')
-        logger.info(f'Eva({data_name}) epoch {epoch} , ssim: {ave_ssim : .6f}.')
+        logger.info(f'Eva({data_name}) epoch {epoch}, psnr: {ave_psnr:.6f}.')
+        logger.info(f'Eva({data_name}) epoch {epoch}, ssim: {ave_ssim:.6f}.')
         
         return f'{ave_ssim: .3f}'
     else:
