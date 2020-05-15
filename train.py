@@ -82,7 +82,7 @@
 
     #### Clear
 
-        python clear.py [--tag cache]  # (DO NOT use this command unless you know what you are doing.)
+        python clear.py [my_tag]  # (DO NOT use this command unless you know what you are doing.)
 
 
     License: MIT
@@ -208,7 +208,7 @@ try:
         if epoch % opt.eval_freq == 0:
 
             model.eval()
-            # eval_result = evaluate(model, val_dataloader, epoch, writer, logger)
+            eval_result = evaluate(model, val_dataloader, epoch, writer, logger)
             model.train()
 
         if scheduler is not None:

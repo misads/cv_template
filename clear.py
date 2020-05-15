@@ -10,7 +10,7 @@ def parse_args():
     # experiment specifics
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--tag', type=str, default='cache',
+    parser.add_argument('tag', type=str, default='cache',
                         help='folder name to clear')
 
     parser.add_argument('--rm', action='store_true', help='debug mode')

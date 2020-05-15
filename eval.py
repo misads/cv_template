@@ -95,7 +95,7 @@ if __name__ == '__main__':
     from options import opt
     from network import get_model
     import misc_utils as utils
-    from torch_template.utils.torch_utils import create_summary_writer
+    from mscv.summary import create_summary_writer
 
     if not opt.load:
         print('Usage: eval.py [--tag TAG] --load LOAD')
@@ -109,8 +109,10 @@ if __name__ == '__main__':
     model = Model(opt)
     model = model.to(device=opt.device)
 
+    load_epoch = model.load(opt.load)
+
     model.eval()
     writer = create_summary_writer(log_root)
 
-    evaluate(model, dl.val_dataloader, opt.which_epoch, writer, logger, 'val')
+    evaluate(model, dl.val_dataloader, load_epoch, writer, logger, 'val')
 

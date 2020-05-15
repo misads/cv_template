@@ -38,7 +38,7 @@ See Running Log:
     cat logs/{%s}/log.txt""" % log_choices + """
 
 Clear(delete all files with the tag, BE CAREFUL to use):
-    python clear.py --tag {%s} """ % log_choices + """
+    python clear.py {%s} """ % log_choices + """
 
 See ALL Running Commands:
     cat run_log.txt
