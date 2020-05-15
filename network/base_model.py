@@ -11,9 +11,13 @@ from options import opt
 
 def deprecated(info=''):
     def decorator(fn):
-        warnings.warn(info, DeprecationWarning)
-        color_print(f'DeprecationWarning: {info}', 1)
-        return fn
+        def deprecation_info(*args, **kwargs):
+            warnings.warn(info, DeprecationWarning)
+            color_print(f'DeprecationWarning: {info}', 1)
+            result = fn(*args, **kwargs)
+            return result
+
+        return deprecation_info
     return decorator
 
 
