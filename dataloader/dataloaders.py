@@ -16,7 +16,7 @@ val_list = "./datasets/val.txt"
 
 max_size = 128 if opt.debug else None
 
-train_dataset = ListTrainValDataset(train_list, scale=opt.scale, aug=opt.aug, max_size=max_size, norm=opt.norm_input)
+train_dataset = ListTrainValDataset(train_list, scale=opt.scale, crop=opt.crop, aug=opt.aug, max_size=max_size, norm=opt.norm_input)
 train_dataloader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=True, num_workers=4, drop_last=True)
 
 val_dataset = ListTrainValDataset(val_list, scale=opt.scale, aug=False, max_size=max_size, norm=opt.norm_input)

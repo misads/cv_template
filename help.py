@@ -29,10 +29,10 @@ Debug:
     python train.py --model {%s} --debug""" % model_choices + """
     
 Load Pre-Trained:
-    python train.py --tag your_tag --load checkpoints/{%s} """ % checkpoints_choices + """/500_checkpoint.pt
+    python train.py --tag your_tag --load checkpoints/{%s}""" % checkpoints_choices + """/500_checkpoint.pt
 
 Eval:
-    python eval.py --tag your_tag2 --load checkpoints/{%s} """ % checkpoints_choices + """/500_checkpoint.pt
+    python eval.py --tag your_tag2 --load checkpoints/{%s}""" % checkpoints_choices + """/500_checkpoint.pt
 
 See Running Log:
     cat logs/{%s}/log.txt""" % log_choices + """
