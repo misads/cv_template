@@ -68,8 +68,8 @@ if __name__ == '__main__':
     from torch_template.utils.torch_utils import create_summary_writer
 
     if not opt.load:
-        print('Usage: eval.py [--tag TAG] --load LOAD --which-epoch WHICH_EPOCH')
-        raise_exception('eval.py: the following arguments are required: --load --which-epoch')
+        print('Usage: eval.py [--tag TAG] --load LOAD')
+        raise_exception('eval.py: the following arguments are required: --load')
 
     logger = init_log(training=False)
     log_root = os.path.join(opt.result_dir, opt.tag, str(opt.which_epoch))

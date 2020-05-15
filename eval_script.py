@@ -1,8 +1,8 @@
 import os
 
 commands = {
-    'cascaded': 'python3 eval.py --tag Cascaded --model cascaded --load checkpoints/Cascaded --which-epoch 669',
-    'pure3': 'python3 eval.py --tag pure3 --model default --load checkpoints/pure3 --which-epoch 499',
+    'cascaded': 'python3 eval.py --tag Cascaded --model cascaded --load checkpoints/Cascaded/669_model.pt',
+    'pure3': 'python3 eval.py --tag pure3 --model default --load checkpoints/pure3/499_model.pt',
 
 }
 

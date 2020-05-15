@@ -5,9 +5,10 @@ import os
 
 def get_dirs(dir):
     res = []
-    for file in os.listdir(dir):
-        if os.path.isdir(os.path.join(dir, file)):
-            res.append(file)
+    if os.path.isdir(dir):
+        for file in os.listdir(dir):
+            if os.path.isdir(os.path.join(dir, file)):
+                res.append(file)
 
     return '|'.join(res)
 
@@ -28,10 +29,10 @@ Debug:
     python train.py --model {%s} --debug""" % model_choices + """
     
 Load Pre-Trained:
-    python train.py --tag your_tag --load checkpoints/{%s} """ % checkpoints_choices + """--which-epoch 9
+    python train.py --tag your_tag --load checkpoints/{%s} """ % checkpoints_choices + """/500_checkpoint.pt
 
 Eval:
-    python eval.py --tag your_tag2 --load checkpoints/{%s} """ % checkpoints_choices + """--which-epoch 9
+    python eval.py --tag your_tag2 --load checkpoints/{%s} """ % checkpoints_choices + """/500_checkpoint.pt
 
 See Running Log:
     cat logs/{%s}/log.txt""" % log_choices + """

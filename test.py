@@ -1,6 +1,6 @@
 # encoding=utf-8
 """
-  python3 test.py --tag complex_256 --dataset complex --load checkpoints/complex --which-epoch 499
+  python3 test.py --tag complex_256 --dataset complex --load checkpoints/complex/500_checkpoint.pt
 
 """
 
