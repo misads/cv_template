@@ -1,62 +1,92 @@
-# python 3.5, pytorch 1.14
+# encoding=utf-8
 
-import os, sys
+# from skimage.measure import compare_psnr as psnr
+# from skimage.measure import compare_ssim as ski_ssim  # deprecated
+from skimage.metrics import peak_signal_noise_ratio as psnr
+from skimage.metrics import structural_similarity as ski_ssim
+
 import pdb
 
 import dataloader as dl
 from options import opt
-from mscv.summary import write_loss
+from mscv.summary import write_loss, write_image
+from mscv.image import tensor2im
 
-sys.path.insert(1, '../')
 import torch
-import torchvision
 import numpy as np
-import subprocess
-import random
-import torch.nn as nn
-import torch.nn.functional as F
 from torch.autograd import Variable
-from torch.utils.data import DataLoader
-from collections.abc import Iterable
+
 from PIL import Image
 from utils import *
 
 import misc_utils as utils
 
 
-def evaluate(model, dataloader, epochs, writer, logger, data_name='val'):
+def evaluate(model, dataloader, epoch, writer, logger, data_name='val'):
 
-    save_root = os.path.join(opt.result_dir, opt.tag, str(epochs), data_name)
+    save_root = os.path.join(opt.result_dir, opt.tag, str(epoch), data_name)
 
     utils.try_make_dir(save_root)
 
-    correct = 0
+    total_psnr = 0.0
+    total_ssim = 0.0
     ct_num = 0
     # print('Start testing ' + tag + '...')
     for i, data in enumerate(dataloader):
         if data_name == 'val':
             input, label, path = data['input'], data['label'], data['path']
             utils.progress_bar(i, len(dataloader), 'Eva... ')
+
+            ct_num += 1
+
+            with torch.no_grad():
+                img_var = Variable(input, requires_grad=False).to(device=opt.device)
+
+                predicted = model(img_var)
+                if isinstance(predicted, tuple) or isinstance(predicted, list):
+                    predicted = predicted[0]
+
+                label = tensor2im(label)
+                predicted = tensor2im(predicted)
+
+                total_psnr += psnr(predicted, label, data_range=255)
+                total_ssim += ski_ssim(predicted, label, data_range=255, multichannel=True)
+
+                save_dst = os.path.join(save_root, utils.get_file_name(path[0]) + '.png')
+                Image.fromarray(predicted).save(save_dst)
+
+        elif data_name == 'test':
+            input, path = data['input'], data['path']
+            utils.progress_bar(i, len(dataloader), 'Eva... ')
             # ct_num += 1
             with torch.no_grad():
                 img_var = Variable(input, requires_grad=False).to(device=opt.device)
-                label_var = Variable(label, requires_grad=False).to(device=opt.device)
-                predicted = model(img_var)
-                _, predicted = torch.max(predicted, 1)
-                ct_num += label.size(0)
-                correct += (predicted == label_var).sum().item()
 
-        elif data_name == 'test':
-            pass
+                predicted = model(img_var)
+                if isinstance(predicted, tuple) or isinstance(predicted, list):
+                    predicted = predicted[0]
+
+                label = tensor2im(label)
+                predicted = tensor2im(predicted)
+
+                total_psnr += psnr(predicted, label, data_range=255)
+                total_ssim += ski_ssim(predicted, label, data_range=255, multichannel=True)
+
+                save_dst = os.path.join(save_root, utils.get_file_name(path[0]) + '.png')
+                Image.fromarray(predicted).save(save_dst)
 
         else:
             raise Exception('Unknown dataset name: %s.' % data_name)
 
     if data_name == 'val':
-        # write_loss(writer, 'val/%s' % data_name, 'psnr', ave_psnr / float(ct_num), epochs)
+        ave_psnr = total_psnr / float(ct_num)
+        ave_ssim = total_ssim / float(ct_num)
+        # write_loss(writer, f'val/{data_name}', 'psnr', total_psnr / float(ct_num), epochs)
 
-        logger.info('Eva(%s) epoch %d ,' % (data_name, epochs) + 'Accuracy: ' + str(correct / float(ct_num)) + '.')
-        return str(round(correct / float(ct_num), 3))
+        logger.info(f'Eva({data_name}) epoch {epoch} , psnr: {ave_psnr : .6f}.')
+        logger.info(f'Eva({data_name}) epoch {epoch} , ssim: {ave_ssim : .6f}.')
+        
+        return f'{ave_ssim: .3f}'
     else:
         return ''
 
@@ -77,7 +107,7 @@ if __name__ == '__main__':
 
     Model = get_model(opt.model)
     model = Model(opt)
-    model = model.cuda(device=opt.device)
+    model = model.to(device=opt.device)
 
     model.eval()
     writer = create_summary_writer(log_root)

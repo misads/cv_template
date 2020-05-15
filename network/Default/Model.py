@@ -12,8 +12,10 @@ from optimizer import get_optimizer
 from scheduler import get_scheduler
 
 from network.base_model import BaseModel
-from mscv import ExponentialMovingAverage, print_network, save_checkpoint
-from loss import criterionL1, criterionSSIM
+from mscv import ExponentialMovingAverage, print_network, load_checkpoint, save_checkpoint
+from loss import criterionL1, criterionSSIM, grad_loss, vgg_loss
+
+import misc_utils as utils
 
 
 def weights_init(m):
@@ -64,6 +66,16 @@ class Model(BaseModel):
         # record losses
         self.avg_meters.update({'ssim': -ssim.item(), 'L1': l1_loss.item()})
 
+        if opt.weight_grad:
+            loss_grad = grad_loss(cleaned, y) * opt.weight_grad
+            loss += loss_grad
+            self.avg_meters.update({'gradient': loss_grad.item()})
+
+        if opt.weight_vgg:
+            content_loss = vgg_loss(cleaned, y) * opt.weight_vgg
+            loss += content_loss
+            self.avg_meters.update({'vgg': content_loss.item()})
+
         self.g_optimizer.zero_grad()
         loss.backward()
         self.g_optimizer.step()
@@ -77,7 +89,24 @@ class Model(BaseModel):
         pass
 
     def load(self, ckpt_path):
-        pass
+        load_dict = {
+            'cleaner': self.cleaner,
+        }
+
+        if opt.resume:
+            load_dict.update({
+                'optimizer': self.g_optimizer,
+                'scheduler': self.scheduler,
+            })
+            ckpt_info = load_checkpoint(load_dict, ckpt_path, map_location=opt.device)
+            epoch = ckpt_info.get('epoch', default=0)
+            utils.color_print('Load checkpoint from %s, resume training.' % ckpt_path, 3)
+        else:
+            load_checkpoint(load_dict, ckpt_path, map_location=opt.device)
+            epoch = 0
+            utils.color_print('Load checkpoint from %s.' % ckpt_path, 3)
+
+        return epoch
 
     def save(self, which_epoch):
         save_filename = f'{which_epoch}_{opt.model}.pt'

@@ -8,14 +8,13 @@ import os, sys
 import pdb
 
 # from dataloader.image_folder import get_data_loader_folder
-from torch_template.dataloader.tta import OverlapTTA
+# from torch_template.dataloader.tta import OverlapTTA
 
 import dataloader as dl
 from network import get_model
 from options import opt
 from misc_utils import get_file_name
 
-sys.path.insert(1, '../')
 import torch
 import torchvision
 import numpy as np

@@ -57,6 +57,8 @@ def parse_args():
     # loss weight
     parser.add_argument('--weight_ssim', type=float, default=1.1)  # SSIM loss
     parser.add_argument('--weight_l1', type=float, default=0.75)  # l1 loss
+    parser.add_argument('--weight_vgg', type=float, default=0.)  # content loss(vgg loss)
+    parser.add_argument('--weight_grad', type=float, default=0.)  # gradient loss
 
     # training options
     parser.add_argument('--debug', action='store_true', help='debug mode')
@@ -64,11 +66,11 @@ def parse_args():
     parser.add_argument('--resume', action='store_true', help='resume training, only used when --load')
     parser.add_argument('--reset', action='store_true', help='reset training, only used when --load')
 
-    parser.add_argument('--epochs', '--max_epoch', type=int, default=5, help='epochs to train')
+    parser.add_argument('--epochs', '--max_epoch', type=int, default=500, help='epochs to train')
     parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate for adam')
 
-    parser.add_argument('--save_freq', type=int, default=1, help='freq to save models')
-    parser.add_argument('--eval_freq', '--val_freq', type=int, default=1, help='freq to eval models')
+    parser.add_argument('--save_freq', type=int, default=10, help='freq to save models')
+    parser.add_argument('--eval_freq', '--val_freq', type=int, default=10, help='freq to eval models')
     parser.add_argument('--log_freq', type=int, default=1, help='freq to vis in tensorboard')
 
     return parser.parse_args()
