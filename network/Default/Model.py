@@ -42,11 +42,6 @@ class Model(BaseModel):
         self.g_optimizer = get_optimizer(opt, self.cleaner)
         self.scheduler = get_scheduler(opt, self.g_optimizer)
 
-        # load networks
-        if opt.load:
-            ckpt_path = opt.load
-            self.load(ckpt_path)
-
         self.avg_meters = ExponentialMovingAverage(0.95)
         self.save_dir = os.path.join(opt.checkpoint_dir, opt.tag)
 
@@ -119,6 +114,7 @@ class Model(BaseModel):
         }
 
         save_checkpoint(save_dict, save_path)
+        utils.color_print(f'Save checkpoint "{save_path}".', 3)
 
 
 
