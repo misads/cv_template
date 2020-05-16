@@ -34,7 +34,7 @@ def parse_args():
     parser.add_argument('--batch_size', '-b', type=int, default=1, help='input batch size')
 
     # optimizer and scheduler
-    parser.add_argument('--optimizer', choices=['adam', 'sgd', 'radam', 'lookahead', 'ranger'], default='ranger')
+    parser.add_argument('--optimizer', choices=['adam', 'sgd', 'radam', 'lookahead', 'ranger'], default='adam')
     parser.add_argument('--scheduler', choices=['cos', 'step', 'exp', 'cyclic', 'lambda', 'None'], default='cos')
 
     # data argumentation

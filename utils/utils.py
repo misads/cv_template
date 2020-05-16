@@ -2,6 +2,7 @@ import os
 import sys
 from options import opt
 import misc_utils as utils
+import warnings
 
 
 def init_log(training=True):
@@ -23,3 +24,15 @@ def init_log(training=True):
 def raise_exception(msg, error_code=1):
     utils.color_print('Exception: ' + msg, 1)
     exit(error_code)
+
+
+def deprecated(info=''):
+    def decorator(fn):
+        def deprecation_info(*args, **kwargs):
+            warnings.warn(info, DeprecationWarning)
+            utils.color_print(f'DeprecationWarning: {info}', 1)
+            result = fn(*args, **kwargs)
+            return result
+
+        return deprecation_info
+    return decorator
