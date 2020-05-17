@@ -32,7 +32,7 @@ result_dir = os.path.join(opt.result_dir, opt.tag, str(load_epoch))
 utils.try_make_dir(result_dir)
 
 for i, data in enumerate(dl.test_dataloader):
-    print('Testing image %d' % i)
+    utils.progress_bar(i, len(dl.test_dataloader), 'Test... ')
     img, paths = data['input'], data['path']
     img = img.to(device=opt.device)
     """
