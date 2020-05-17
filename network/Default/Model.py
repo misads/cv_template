@@ -55,7 +55,7 @@ class Model(BaseModel):
         return self.cleaner(x)
 
     def inference(self, x):
-        super(Model, self).inference(x)
+        return super(Model, self).inference(x)
 
     def load(self, ckpt_path):
         load_dict = {
