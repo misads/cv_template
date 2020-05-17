@@ -43,7 +43,7 @@ class Model(BaseModel):
         # L1 & SSIM loss
         cleaned = self.cleaner(x)
 
-        loss = get_default_loss(cleaned, y, self.avg_meters)  # or altered with your custom loss
+        loss = get_default_loss(cleaned, y, self.avg_meters)
 
         self.g_optimizer.zero_grad()
         loss.backward()

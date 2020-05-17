@@ -10,7 +10,7 @@ criterionBCE = nn.BCELoss()
 criterionMSE = nn.MSELoss()
 
 
-def get_default_loss(recovered, y, avg_meters=None):
+def get_default_loss(recovered, y, avg_meters):
     ssim = - criterionSSIM(recovered, y)
     ssim_loss = ssim * opt.weight_ssim
 
