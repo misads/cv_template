@@ -5,7 +5,7 @@ import torch
 import warnings
 import sys
 
-from misc_utils import color_print
+from misc_utils import color_print, progress_bar
 from options import opt
 from utils import deprecated
 from mscv.image import tensor2im
@@ -29,6 +29,7 @@ class BaseModel(torch.nn.Module):
             if opt.tta:
                 tta = OverlapTTA(img_var, 10, 10, 256, 256)
                 for j, x in enumerate(tta):  # 获取每个patch输入
+                    progress_bar(j, len(tta), 'TTA... ')
                     generated = self.forward(x)
                     torch.cuda.empty_cache()
                     tta.collect(generated[0], j)  # 收集inference结果

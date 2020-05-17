@@ -28,7 +28,7 @@ model.eval()
 
 load_epoch = model.load(opt.load)
 
-result_dir = os.path.join(opt.result_dir, opt.tag, load_epoch)
+result_dir = os.path.join(opt.result_dir, opt.tag, str(load_epoch))
 utils.try_make_dir(result_dir)
 
 for i, data in enumerate(dl.test_dataloader):
