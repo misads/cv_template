@@ -73,6 +73,9 @@ def parse_args():
     parser.add_argument('--eval_freq', '--val_freq', type=int, default=10, help='freq to eval models')
     parser.add_argument('--log_freq', type=int, default=1, help='freq to vis in tensorboard')
 
+    # test options
+    parser.add_argument('--tta', action='store_true', help='test with argumentation')
+
     return parser.parse_args()
 
 

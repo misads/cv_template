@@ -7,7 +7,7 @@ import pdb
 
 ###################
 
-TEST_DATASET_HAS_OPEN = False  # 有没有开放测试集
+TEST_DATASET_HAS_OPEN = True  # 有没有开放测试集
 
 ###################
 
@@ -25,7 +25,7 @@ val_dataloader = DataLoader(val_dataset, batch_size=1, shuffle=False, num_worker
 if TEST_DATASET_HAS_OPEN:
     test_list = "./datasets/test.txt"  # 还没有
 
-    test_dataset = ListTestDataset(test_list, scale=opt.scale, max_size=max_size)
+    test_dataset = ListTestDataset(test_list, scale=opt.scale, max_size=max_size, norm=opt.norm_input)
     test_dataloader = DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=1)
 
 else:

@@ -8,14 +8,40 @@ import sys
 from misc_utils import color_print
 from options import opt
 from utils import deprecated
+from mscv.image import tensor2im
+from mscv.aug_test import OverlapTTA
 
 
 class BaseModel(torch.nn.Module):
     def __init__(self):
         super(BaseModel, self).__init__()
 
+    @abstractmethod
     def forward(self, x):
         pass
+
+    def inference(self, x):
+        # x: Tensor([1, C, H, W])
+        # recovered: 直接出图，可以用Image.save保存
+        with torch.no_grad():
+            img_var = x.to(device=opt.device)
+
+            if opt.tta:
+                tta = OverlapTTA(img_var, 10, 10, 256, 256)
+                for j, x in enumerate(tta):  # 获取每个patch输入
+                    generated = self.forward(x)
+                    torch.cuda.empty_cache()
+                    tta.collect(generated[0], j)  # 收集inference结果
+                output = tta.combine().unsqueeze(0)
+                recovered = tensor2im(output)
+            else:
+                recovered = self.forward(img_var)
+                if isinstance(recovered, tuple) or isinstance(recovered, list):
+                    recovered = recovered[0]
+
+                recovered = tensor2im(recovered)
+
+        return recovered
 
     @abstractmethod
     def load(self, ckpt_path):

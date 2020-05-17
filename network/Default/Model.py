@@ -54,8 +54,8 @@ class Model(BaseModel):
     def forward(self, x):
         return self.cleaner(x)
 
-    def inference(self, x, image=None):
-        pass
+    def inference(self, x):
+        super(Model, self).inference(x)
 
     def load(self, ckpt_path):
         load_dict = {

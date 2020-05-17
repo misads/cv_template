@@ -1,3 +1,8 @@
+# encoding=utf-8
+"""
+    将旧的checkpoint升级成新的checkpoint
+"""
+
 import argparse
 import torch
 import os

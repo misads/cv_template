@@ -2,24 +2,17 @@
 
 from skimage.measure import compare_psnr as psnr
 from skimage.measure import compare_ssim as ski_ssim  # deprecated
-# from skimage.metrics import peak_signal_noise_ratio as psnr
-# from skimage.metrics import structural_similarity as ski_ssim
-
-import pdb
 
 import dataloader as dl
 from options import opt
 from mscv.summary import write_loss, write_image
 from mscv.image import tensor2im
 
-import torch
-import numpy as np
-from torch.autograd import Variable
-
 from PIL import Image
 from utils import *
 
 import misc_utils as utils
+import pdb
 
 
 def evaluate(model, dataloader, epoch, writer, logger, data_name='val'):
@@ -33,50 +26,33 @@ def evaluate(model, dataloader, epoch, writer, logger, data_name='val'):
     ct_num = 0
     # print('Start testing ' + tag + '...')
     for i, data in enumerate(dataloader):
+        utils.progress_bar(i, len(dataloader), 'Eva... ')
+
+        input, path = data['input'], data['path']
+        img = input.to(device=opt.device)
+        recovered = model.inference(img)
+
         if data_name == 'val':
-            input, label, path = data['input'], data['label'], data['path']
-            utils.progress_bar(i, len(dataloader), 'Eva... ')
+            label = data['label']
+            label = tensor2im(label)
 
             ct_num += 1
 
-            with torch.no_grad():
-                img_var = Variable(input, requires_grad=False).to(device=opt.device)
+            total_psnr += psnr(recovered, label, data_range=255)
+            total_ssim += ski_ssim(recovered, label, data_range=255, multichannel=True)
 
-                predicted = model(img_var)
-                if isinstance(predicted, tuple) or isinstance(predicted, list):
-                    predicted = predicted[0]
-
-                label = tensor2im(label)
-                predicted = tensor2im(predicted)
-
-                total_psnr += psnr(predicted, label, data_range=255)
-                total_ssim += ski_ssim(predicted, label, data_range=255, multichannel=True)
-
-                save_dst = os.path.join(save_root, utils.get_file_name(path[0]) + '.png')
-                Image.fromarray(predicted).save(save_dst)
+            save_dst = os.path.join(save_root, utils.get_file_name(path[0]) + '.png')
+            Image.fromarray(recovered).save(save_dst)
 
         elif data_name == 'test':
-            input, path = data['input'], data['path']
-            utils.progress_bar(i, len(dataloader), 'Eva... ')
-            # ct_num += 1
-            with torch.no_grad():
-                img_var = Variable(input, requires_grad=False).to(device=opt.device)
-
-                predicted = model(img_var)
-                if isinstance(predicted, tuple) or isinstance(predicted, list):
-                    predicted = predicted[0]
-
-                label = tensor2im(label)
-                predicted = tensor2im(predicted)
-
-                total_psnr += psnr(predicted, label, data_range=255)
-                total_ssim += ski_ssim(predicted, label, data_range=255, multichannel=True)
-
-                save_dst = os.path.join(save_root, utils.get_file_name(path[0]) + '.png')
-                Image.fromarray(predicted).save(save_dst)
+            pass
 
         else:
             raise Exception('Unknown dataset name: %s.' % data_name)
+
+        # 保存结果
+        save_dst = os.path.join(save_root, utils.get_file_name(path[0]) + '.png')
+        Image.fromarray(recovered).save(save_dst)
 
     if data_name == 'val':
         ave_psnr = total_psnr / float(ct_num)
@@ -107,13 +83,13 @@ if __name__ == '__main__':
 
     opt.which_epoch = model.load(opt.load)
 
-    # model.eval()
-    #
-    # log_root = os.path.join(opt.result_dir, opt.tag, str(opt.which_epoch))
-    # utils.try_make_dir(log_root)
-    #
-    # writer = create_summary_writer(log_root)
-    #
-    # logger = init_log(training=False)
-    # evaluate(model, dl.val_dataloader, opt.which_epoch, writer, logger, 'val')
+    model.eval()
+
+    log_root = os.path.join(opt.result_dir, opt.tag, str(opt.which_epoch))
+    utils.try_make_dir(log_root)
+
+    writer = create_summary_writer(log_root)
+
+    logger = init_log(training=False)
+    evaluate(model, dl.val_dataloader, opt.which_epoch, writer, logger, 'val')
 
