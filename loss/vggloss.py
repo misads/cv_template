@@ -42,8 +42,9 @@ class Vgg16(torch.nn.Module):
 
 vgg = Vgg16().to(device=opt.device)
 
-def vgg_loss(restored, label):
-    features_est = vgg(restored)  # [relu1_1, relu1_2, relu2_1, relu2_2, relu3_1]
+
+def vgg_loss(recovered, label):
+    features_est = vgg(recovered)  # [relu1_1, relu1_2, relu2_1, relu2_2, relu3_1]
     features_gt = vgg(label)
 
     content_loss = []

@@ -14,7 +14,8 @@ from scheduler import get_scheduler
 from network.base_model import BaseModel
 from mscv import ExponentialMovingAverage, print_network, load_checkpoint, save_checkpoint
 # from mscv.cnn import normal_init
-from loss import criterionL1, criterionSSIM, grad_loss, vgg_loss
+from loss import get_default_loss
+
 
 import misc_utils as utils
 
@@ -41,33 +42,14 @@ class Model(BaseModel):
 
         # L1 & SSIM loss
         cleaned = self.cleaner(x)
-        ssim = - criterionSSIM(cleaned, y)
-        ssim_loss = ssim * opt.weight_ssim
 
-        # Compute L1 loss (not used)
-        l1_loss = criterionL1(cleaned, y)
-        l1_loss = l1_loss * opt.weight_l1
-
-        loss = ssim_loss + l1_loss
-
-        # record losses
-        self.avg_meters.update({'ssim': -ssim.item(), 'L1': l1_loss.item()})
-
-        if opt.weight_grad:
-            loss_grad = grad_loss(cleaned, y) * opt.weight_grad
-            loss += loss_grad
-            self.avg_meters.update({'gradient': loss_grad.item()})
-
-        if opt.weight_vgg:
-            content_loss = vgg_loss(cleaned, y) * opt.weight_vgg
-            loss += content_loss
-            self.avg_meters.update({'vgg': content_loss.item()})
+        loss = get_default_loss(cleaned, y, self.avg_meters)  # or altered with your custom loss
 
         self.g_optimizer.zero_grad()
         loss.backward()
         self.g_optimizer.step()
 
-        return {'restored': cleaned}
+        return {'recovered': cleaned}
 
     def forward(self, x):
         return self.cleaner(x)

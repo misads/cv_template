@@ -187,7 +187,7 @@ try:
             #       Update parameters
             ##############################
             update = model.update(img_var, label_var)
-            restored = update.get('restored')
+            recovered = update.get('recovered')
 
             pre_msg = 'Epoch:%d' % epoch
 

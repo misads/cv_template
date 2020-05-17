@@ -83,8 +83,8 @@ def evaluate(model, dataloader, epoch, writer, logger, data_name='val'):
         ave_ssim = total_ssim / float(ct_num)
         # write_loss(writer, f'val/{data_name}', 'psnr', total_psnr / float(ct_num), epochs)
 
-        logger.info(f'Eva({data_name}) epoch {epoch}, psnr: {ave_psnr:.6f}.')
-        logger.info(f'Eva({data_name}) epoch {epoch}, ssim: {ave_ssim:.6f}.')
+        logger.info(f'Eva({data_name}) epoch {epoch}, psnr: {ave_psnr}.')
+        logger.info(f'Eva({data_name}) epoch {epoch}, ssim: {ave_ssim}.')
         
         return f'{ave_ssim: .3f}'
     else:
@@ -107,13 +107,13 @@ if __name__ == '__main__':
 
     opt.which_epoch = model.load(opt.load)
 
-    model.eval()
-
-    log_root = os.path.join(opt.result_dir, opt.tag, str(opt.which_epoch))
-    utils.try_make_dir(log_root)
-
-    writer = create_summary_writer(log_root)
-
-    logger = init_log(training=False)
-    evaluate(model, dl.val_dataloader, opt.which_epoch, writer, logger, 'val')
+    # model.eval()
+    #
+    # log_root = os.path.join(opt.result_dir, opt.tag, str(opt.which_epoch))
+    # utils.try_make_dir(log_root)
+    #
+    # writer = create_summary_writer(log_root)
+    #
+    # logger = init_log(training=False)
+    # evaluate(model, dl.val_dataloader, opt.which_epoch, writer, logger, 'val')
 
