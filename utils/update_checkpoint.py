@@ -18,7 +18,7 @@ opt = parse_args()
 if not os.path.isfile(opt.input):
     raise FileNotFoundError
 
-state_dict = torch.load(opt.input)
+state_dict = torch.load(opt.input, map_location='cpu')
 
 save_dict = {
     'cleaner': state_dict,

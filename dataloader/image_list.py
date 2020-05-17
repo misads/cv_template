@@ -55,7 +55,7 @@ class ListTrainValDataset(dataset.Dataset):
             lines = f.readlines()
             for line in lines:
                 line = line.rstrip('\n')
-                img, label = line.split(',')
+                img, label = line.split()
                 img, label = img.strip(), label.strip()
                 self.im_names.append(img)
                 self.labels.append(label)
