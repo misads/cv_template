@@ -9,7 +9,7 @@ from misc_utils import color_print, progress_bar
 from options import opt
 from utils import deprecated
 from mscv.image import tensor2im
-from mscv.aug_test import OverlapTTA
+from mscv.aug_test import tta_inference, tta_inference_x8
 
 
 class BaseModel(torch.nn.Module):
@@ -27,13 +27,7 @@ class BaseModel(torch.nn.Module):
             img_var = x.to(device=opt.device)
 
             if opt.tta:
-                tta = OverlapTTA(img_var, 10, 10, 256, 256)
-                for j, x in enumerate(tta):  # 获取每个patch输入
-                    progress_bar(j, len(tta), 'TTA... ')
-                    generated = self.forward(x)
-                    torch.cuda.empty_cache()
-                    tta.collect(generated[0], j)  # 收集inference结果
-                output = tta.combine().unsqueeze(0)
+                output = tta_inference(self.forward, img_var, 10, 10, 256, 256).unsqueeze(0)
                 recovered = tensor2im(output)
             else:
                 recovered = self.forward(img_var)
