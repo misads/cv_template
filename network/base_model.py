@@ -29,6 +29,9 @@ class BaseModel(torch.nn.Module):
             if opt.tta:
                 output = tta_inference(self.forward, img_var, 10, 10, 256, 256).unsqueeze(0)
                 recovered = tensor2im(output)
+            elif opt.tta_x8:
+                output = tta_inference_x8(self.forward, img_var, 10, 10, 256, 256).unsqueeze(0)
+                recovered = tensor2im(output)
             else:
                 recovered = self.forward(img_var)
                 if isinstance(recovered, tuple) or isinstance(recovered, list):

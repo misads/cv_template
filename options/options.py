@@ -75,6 +75,7 @@ def parse_args():
 
     # test options
     parser.add_argument('--tta', action='store_true', help='test with argumentation')
+    parser.add_argument('--tta-x8', action='store_true', help='test with argumentation x8')
 
     return parser.parse_args()
 
