@@ -40,7 +40,7 @@ for i, data in enumerate(dl.test_dataloader):
     """
     filename = utils.get_file_name(paths[0])
 
-    res = model.inference(img)
+    res = model.inference(img, progress_idx=(i, len(dl.test_dataloader)))
 
     # 保存结果
     save_path = os.path.join(result_dir, filename + '.png')

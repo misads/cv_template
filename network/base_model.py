@@ -20,17 +20,17 @@ class BaseModel(torch.nn.Module):
     def forward(self, x):
         pass
 
-    def inference(self, x):
+    def inference(self, x, progress_idx=None):
         # x: Tensor([1, C, H, W])
         # recovered: 直接出图，可以用Image.save保存
         with torch.no_grad():
             img_var = x.to(device=opt.device)
 
             if opt.tta:
-                output = tta_inference(self.forward, img_var, 10, 10, 256, 256).unsqueeze(0)
+                output = tta_inference(self.forward, img_var, 10, 10, 256, 256, progress_idx).unsqueeze(0)
                 recovered = tensor2im(output)
             elif opt.tta_x8:
-                output = tta_inference_x8(self.forward, img_var, 10, 10, 256, 256).unsqueeze(0)
+                output = tta_inference_x8(self.forward, img_var, 10, 10, 256, 256, progress_idx).unsqueeze(0)
                 recovered = tensor2im(output)
             else:
                 recovered = self.forward(img_var)

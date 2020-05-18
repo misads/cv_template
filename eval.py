@@ -30,7 +30,7 @@ def evaluate(model, dataloader, epoch, writer, logger, data_name='val'):
 
         input, path = data['input'], data['path']
         img = input.to(device=opt.device)
-        recovered = model.inference(img)
+        recovered = model.inference(img, progress_idx=(i, len(dataloader)))
 
         if data_name == 'val':
             label = data['label']
