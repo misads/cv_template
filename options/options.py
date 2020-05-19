@@ -37,7 +37,7 @@ def parse_args():
     parser.add_argument('--optimizer', choices=['adam', 'sgd', 'radam', 'lookahead', 'ranger'], default='adam')
     parser.add_argument('--scheduler', choices=['cos', 'step', 'exp', 'cyclic', 'lambda', 'None'], default='cos')
 
-    # data argumentation
+    # data augmentation
     parser.add_argument('--aug', action='store_true', help='Randomly scale, jitter, change hue, saturation and brightness')
     parser.add_argument('--norm-input', action='store_true')
     parser.add_argument('--random-erase', action='store_true', help='debug mode')
@@ -74,8 +74,8 @@ def parse_args():
     parser.add_argument('--log_freq', type=int, default=1, help='freq to vis in tensorboard')
 
     # test options
-    parser.add_argument('--tta', action='store_true', help='test with argumentation')
-    parser.add_argument('--tta-x8', action='store_true', help='test with argumentation x8')
+    parser.add_argument('--tta', action='store_true', help='test with augmentation')
+    parser.add_argument('--tta-x8', action='store_true', help='test with augmentation x8')
 
     return parser.parse_args()
 
