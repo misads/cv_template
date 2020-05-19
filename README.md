@@ -7,7 +7,7 @@
 
 - 平台支持
   - [ ] 多GPU支持
-- [ ] 测试时支持多`batch_size`
+  - [ ] 测试时支持多`batch_size`
   
 - TTA
   - [ ] 放大、色相、饱和度、亮度
@@ -23,9 +23,10 @@
 
 ```yaml
 python >= 3.6
-torch >= 0.4
+torch >= 1.0
 tensorboardX >= 1.6
 utils-misc >= 0.0.5
+mscv >= 0.0.3
 ```
 
 ## Code Usage
