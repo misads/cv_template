@@ -27,10 +27,12 @@ class BaseModel(torch.nn.Module):
             img_var = x.to(device=opt.device)
 
             if opt.tta:
-                output = tta_inference(self.forward, img_var, 10, 10, 256, 256, progress_idx=progress_idx).unsqueeze(0)
+                output = tta_inference(self.forward, img_var, 10, 10, 256, 256, 0, 0,
+                                       progress_idx=progress_idx).unsqueeze(0)
                 recovered = tensor2im(output)
             elif opt.tta_x8:
-                output = tta_inference_x8(self.forward, img_var, 10, 10, 256, 256, progress_idx=progress_idx).unsqueeze(0)
+                output = tta_inference_x8(self.forward, img_var, 10, 10, 256, 256, 0, 0,
+                                          progress_idx=progress_idx).unsqueeze(0)
                 recovered = tensor2im(output)
             else:
                 recovered = self.forward(img_var)
