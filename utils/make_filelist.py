@@ -41,11 +41,13 @@ files = list(filter(is_image, files))
 
 if opt.label is None:  # test
     files.sort()
+    test_count = len(files)
     with open(os.path.join(opt.out, 'test.txt'), 'w') as f:
         for line in files:
             line = os.path.join(os.path.abspath(opt.input), line)
             print(line)
             f.writelines(line + '\n')
+            utils.color_print(f'test count: {test_count}', 3)
 
 else:
     random.shuffle(files)
