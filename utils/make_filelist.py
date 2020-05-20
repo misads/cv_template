@@ -47,7 +47,7 @@ if opt.label is None:  # test
             line = os.path.join(os.path.abspath(opt.input), line)
             print(line)
             f.writelines(line + '\n')
-            utils.color_print(f'test count: {test_count}', 3)
+        utils.color_print(f'test count: {test_count}', 3)
 
 else:
     random.shuffle(files)
