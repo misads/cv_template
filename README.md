@@ -4,7 +4,7 @@
 
 ## Highlights
 
-- Features
+- 特色功能
   - [x] 快速搭建baseline，只需生成filelist，无需修改代码即可运行
   - [x] (参数控制)多模型
   - [x] 训练过程监控
