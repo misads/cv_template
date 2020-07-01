@@ -4,10 +4,13 @@
 
 ## Highlights
 
+- Features
   - [x] 快速搭建baseline，只需生成filelist，无需修改代码即可运行
   - [x] (参数控制)多模型
   - [x] 训练过程监控
-  - [x] 测试时支持TTA
+  - [x] 命令行日志记录
+  - [x] 支持TTA
+  - [x] 自动化超参数搜索🔍
 
 
 ## To do List
