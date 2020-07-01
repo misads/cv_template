@@ -1,5 +1,6 @@
 import torch.nn as nn
 from loss.gradient import grad_loss
+from loss.tvloss import tv_loss
 from loss.vggloss import vgg_loss
 from loss.ssim import ssim_loss as criterionSSIM
 from options import opt

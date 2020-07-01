@@ -5,8 +5,8 @@ criterionCAE = nn.L1Loss()
 
 
 def gradient(y):
-    gradient_h=torch.abs(y[:, :, :, :-1] - y[:, :, :, 1:])
-    gradient_y=torch.abs(y[:, :, :-1, :] - y[:, :, 1:, :])
+    gradient_h = torch.abs(y[:, :, :, :-1] - y[:, :, :, 1:])
+    gradient_y = torch.abs(y[:, :, :-1, :] - y[:, :, 1:, :])
 
     return gradient_h, gradient_y
 
