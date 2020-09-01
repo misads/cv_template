@@ -43,7 +43,7 @@ utils-misc >= 0.0.5
 mscv >= 0.0.3
 ```
 
-## 生成filelist
+## 生成文件列表的txt文件
 
 ```bash
 # !- bash
@@ -52,26 +52,52 @@ python utils/make_filelist.py --input datasets/images/ --label /datasets/labels 
 
 ## Code Usage
 
-#### 训练
-
 ```bash
-# !- bash
-python3 train.py --tag run1 --model FFA -b 2 --epochs 500 --gpu 1
+Code Usage:
+Training:
+    python train.py --tag your_tag --model FFA --epochs 20 -b 2 --lr 0.0001 --gpu 0
+
+Finding Best Hyper Params:  # 需先设置好sweep.yml
+    python grid_search.py --run
+
+Resume Training (or fine-tune):
+    python train.py --tag your_tag --model FFA --epochs 20 -b 2 --load checkpoints/your_tag/9_FFA.pt --resume --gpu 0
+
+Eval:
+    python eval.py --model FFA -b 2 --load checkpoints/your_tag/9_FFA.pt --gpu 1
+
+Generate Submission:
+    python submit.py --model FFA --load checkpoints/your_tag/9_FFA.pt -b 2 --gpu 0
+
+See Running Log:
+    cat logs/your_tag/log.txt
+
+Clear(delete all files with the tag, BE CAREFUL to use):
+    python clear.py --tag your_tag
+
+See ALL Running Commands:
+    cat run_log.txt
 ```
 
-#### 验证
+参数用法：
 
-```bash
-# !- bash
-python3 eval.py --tag pengzhang --load checkpoints/run1/480_FFA.pt --tta
-```
+`--tag`参数是一次操作(`train`或`eval`)的标签，日志会保存在`logs/标签`目录下，保存的模型会保存在`checkpoints/标签`目录下。  
 
-#### 更多用法请参考
+`--model`是使用的模型，所有可用的模型定义在`network/__init__.py`中。  
 
-```bash
-# !- bash
-python help.py
-```
+`--epochs`是训练的代数。  
+
+`-b`参数是`batch_size`，可以根据显存的大小调整。  
+
+`--lr`是初始学习率。
+
+`--load`是加载预训练模型。  
+
+`--resume`配合`--load`使用，会恢复上次训练的`epoch`和优化器。  
+
+`--gpu`指定`gpu id`，目前只支持单卡训练。  
+
+另外还可以通过参数调整优化器、学习率衰减、验证和保存模型的频率等，详细请查看`python train.py --help`。  
 
 ## 如何添加新的模型：
 

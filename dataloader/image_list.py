@@ -200,11 +200,11 @@ def preview_dataset(dataset, path='path'):
 
 if __name__ == '__main__':
 
-    dataset = ListTrainValDataset('../datasets/Toled/train.txt', crop=256, aug=True)
+    dataset = ListTrainValDataset('../datasets/train.txt', crop=256, aug=False)
     preview_dataset(dataset)
 
-    dataset = ListTestDataset('../datasets/Toled/test.txt', scale=256)
-    preview_dataset(dataset)
+    # dataset = ListTestDataset('../datasets/test.txt', scale=256)
+    # preview_dataset(dataset)
 
 
 
