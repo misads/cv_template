@@ -3,7 +3,7 @@
 　　一个图像复原或分割的Baseline，可以用于去雾🌫、去雨🌧、去模糊、夜景🌃复原、超分辨率👾、像素级分割等等。
   
   
-  <img alt='preview' src='http://www.xyu.ink/wp-content/uploads/2020/11/dehaze.png' height=400/>
+  <img alt='preview' src='http://www.xyu.ink/wp-content/uploads/2020/11/dehaze2.png' height=300/>
 
 
 ## Highlights
