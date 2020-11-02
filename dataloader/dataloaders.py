@@ -7,7 +7,7 @@ import pdb
 
 ###################
 
-TEST_DATASET_HAS_OPEN = True  # 有没有开放测试集
+TEST_DATASET_HAS_OPEN = False  # 有没有开放测试集
 
 ###################
 
@@ -17,10 +17,10 @@ val_list = "./datasets/val.txt"
 max_size = 128 if opt.debug else None
 
 train_dataset = ListTrainValDataset(train_list, scale=opt.scale, crop=opt.crop, aug=opt.aug, max_size=max_size, norm=opt.norm_input)
-train_dataloader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=True, num_workers=4, drop_last=True)
+train_dataloader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=True, num_workers=opt.workers, drop_last=True)
 
 val_dataset = ListTrainValDataset(val_list, scale=opt.scale, aug=False, max_size=max_size, norm=opt.norm_input)
-val_dataloader = DataLoader(val_dataset, batch_size=1, shuffle=False, num_workers=1)
+val_dataloader = DataLoader(val_dataset, batch_size=1, shuffle=False, num_workers=opt.workers//2)
 
 if TEST_DATASET_HAS_OPEN:
     test_list = "./datasets/test.txt"  # 还没有

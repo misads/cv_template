@@ -26,12 +26,13 @@ def parse_args():
     parser.add_argument('--result_dir', type=str, default='./results', help='results are saved here')
     #######################
 
-    parser.add_argument('--model', type=str, default='default', help='which model to use')
+    parser.add_argument('--model', type=str, default=None, help='which model to use')
     parser.add_argument('--norm', type=str, choices=['batch', 'instance', None], default=None,
                         help='[instance] normalization or [batch] normalization')
 
     # batch size
     parser.add_argument('--batch_size', '-b', type=int, default=1, help='input batch size')
+    parser.add_argument('--workers', '-w', type=int, default=4, help='dataloader workers')
 
     # optimizer and scheduler
     parser.add_argument('--optimizer', choices=['adam', 'sgd', 'radam', 'lookahead', 'ranger'], default='adam')

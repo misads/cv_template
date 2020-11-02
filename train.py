@@ -1,94 +1,10 @@
 # encoding = utf-8
 """
-    一个图像复原或分割的Baseline。
-
-    如何添加新的模型：
-
-    ① 复制network目录下的Default文件夹，改成另外一个名字(比如MyNet)。
-
-    ② 在network/__init__.py中import你的Model并且在models = {}中添加它。
-        from MyNet.Model import Model as MyNet
-        models = {
-            'default': Default,
-            'MyNet': MyNet,
-        }
-
-    ③ 尝试 python train.py --model MyNet 看能否成功运行
-
-
-    File Structure:
-    cv_template
-        ├── train.py                :Train and evaluation loop, errors and outputs visualization (Powered by TensorBoard)
-        ├── eval.py                 :Evaluation and test (with visualization)
-        ├── test.py                 :Test
-        │
-        ├── clear.py                :Clear cache, be CAREFUL to use it
-        │
-        ├── run_log.txt             :Record your command logs (except --tag cache)
-        │
-        ├── network
-        │     ├── __init__.py       :Declare all models here so that `--model` can work properly
-        │     ├── Default
-        │     │      ├── Model.py   :Define default model, losses and parameter updating procedure
-        │     │      └── FFA.py
-        │     └── MyNet
-        │            ├── Model.py   :Define your model, losses and parameter updating procedure
-        │            └── mynet.py
-        ├── options
-        │     └── options.py        :Define options
-        │
-        │
-        ├── dataloader/             :Define Dataloaders
-        │     ├── __init__.py       :imports all dataloaders in dataloaders.py
-        │     ├── dataloaders.py    :Define all dataloaders here
-        │     └── my_dataset.py     :Custom Dataset
-        │
-        ├── checkpoints/<tag>       :Trained checkpoints
-        ├── logs/<tag>              :Logs and TensorBoard event files
-        └── results/<tag>           :Test results
-
-
-    Datasets:
-
-        datasets
-           ├── train
-           │     ├── 00001
-           │     ├── 00002
-           │     └── .....
-           ├──  val
-           │     ├── 00001
-           │     ├── 00002
-           │     └── .....
-           ├── train.txt
-           └── val.txt
-
-    Usage:
-
-    #### Train
-
-        python train.py --tag train_1 --epochs 500 -b 8 --gpu 1
-
-    #### Resume Training
-
-        python train.py --load checkpoints/train_1/500_checkpoint.pt --resume
-
-    #### Evaluation
-
-        python eval.py --tag eval_1 --model MyNet --load checkpoints/train_1/500_checkpoint.pt
-
-    #### Test
-
-        python test.py --tag test_1
-
-    #### Clear
-
-        python clear.py [my_tag]  # (DO NOT use this command unless you know what you are doing.)
-
-
+    Author: xuhaoyu@tju.edu.cn
+    Github: https://github.com/misads
     License: MIT
 
 """
-
 import os
 import pdb
 import time
@@ -106,31 +22,24 @@ from options import opt
 
 from utils import init_log
 from mscv.summary import create_summary_writer, write_meters_loss
-# from utils.send_sms import send_notification
 
 import misc_utils as utils
 
-######################
-#       Paths
-######################
+# 路径
 save_root = os.path.join(opt.checkpoint_dir, opt.tag)
 log_root = os.path.join(opt.log_dir, opt.tag)
 
 utils.try_make_dir(save_root)
 utils.try_make_dir(log_root)
 
-
-######################
-#      DataLoaders
-######################
+# Dataloader
 train_dataloader = dl.train_dataloader
 val_dataloader = dl.val_dataloader
-# init log
+
+# 初始化日志
 logger = init_log(training=True)
 
-######################
-#     Init model
-######################
+# 初始化模型
 Model = get_model(opt.model)
 model = Model(opt)
 
@@ -139,96 +48,72 @@ model = Model(opt)
 #     model = torch.nn.DataParallel(model, device_ids=opt.gpu_ids)
 model = model.to(device=opt.device)
 
+# 加载预训练模型，恢复中断的训练
 if opt.load:
     load_epoch = model.load(opt.load)
     start_epoch = load_epoch + 1 if opt.resume else 1
 else:
     start_epoch = 1
 
+# 开始训练
 model.train()
 
-# Start training
+# 计算开始和总共的step
 print('Start training...')
 start_step = (start_epoch - 1) * len(train_dataloader)
 global_step = start_step
 total_steps = opt.epochs * len(train_dataloader)
 start = time.time()
 
-#####################
-#   定义scheduler
-#####################
-
-scheduler = model.scheduler
-
-######################
-#    Summary_writer
-######################
+# Tensorboard初始化
 writer = create_summary_writer(log_root)
 
 start_time = time.time()
-######################
-#     Train loop
-######################
-try:
-    eval_result = ''
 
+try:
+    # 训练循环
     for epoch in range(start_epoch, opt.epochs + 1):
-        for iteration, data in enumerate(train_dataloader):
+        for iteration, sample in enumerate(train_dataloader):
             global_step += 1
+            # 计算剩余时间
             rate = (global_step - start_step) / (time.time() - start)
             remaining = (total_steps - global_step) / rate
 
-            img, label = data['input'], data['label']  # ['label'], data['image']  #
+            # 更新模型参数
+            update_return = model.update(sample)
 
-            img_var = Variable(img, requires_grad=False).to(device=opt.device)
-            label_var = Variable(label, requires_grad=False).to(device=opt.device)
+            # 获取当前学习率
+            lr = model.get_lr()
+            lr = lr if lr is not None else opt.lr
 
-            ##############################
-            #       Update parameters
-            ##############################
-            update = model.update(img_var, label_var)
-            recovered = update.get('recovered')
+            # 显示进度条
+            msg = f'lr:{round(lr, 6) : .6f} (loss) {str(model.avg_meters)} ETA: {utils.format_time(remaining)}'
+            utils.progress_bar(iteration, len(train_dataloader), 'Epoch:%d' % epoch, msg)
 
-            pre_msg = 'Epoch:%d' % epoch
-
-            msg = f'lr:{round(scheduler.get_lr()[0], 6) : .6f} (loss) {str(model.avg_meters)} ETA: {utils.format_time(remaining)}'
-            utils.progress_bar(iteration, len(train_dataloader), pre_msg, msg)
-            # print(pre_msg, msg)
-
+            # 训练时每1000个step记录一下summary
             if global_step % 1000 == 0:
                 write_meters_loss(writer, 'train', model.avg_meters, global_step)
+                model.write_train_summary(update_return)
 
-        logger.info(f'Train epoch: {epoch}, lr: {round(scheduler.get_lr()[0], 6) : .6f}, (loss) ' + str(model.avg_meters))
+        # 每个epoch结束后的显示信息
+        logger.info(f'Train epoch: {epoch}, lr: {round(lr, 6) : .6f}, (loss) ' + str(model.avg_meters))
 
         if epoch % opt.save_freq == 0 or epoch == opt.epochs:  # 最后一个epoch要保存一下
             model.save(epoch)
 
-        ####################
-        #     Validation
-        ####################
+        # 训练中验证
         if epoch % opt.eval_freq == 0:
 
             model.eval()
             eval_result = evaluate(model, val_dataloader, epoch, writer, logger)
             model.train()
 
-        if scheduler is not None:
-            scheduler.step()
-
-    # send_notification([opt.tag[:12], '', '', eval_result])
-
-    if opt.tag != 'cache':
-        with open('run_log.txt', 'a') as f:
-            f.writelines('    Accuracy:' + eval_result + '\n')
+        model.step_scheduler()
 
 except Exception as e:
-
-    # if not opt.debug:  # debug模式不会发短信 12是短信模板字数限制
-    #     send_notification([opt.tag[:12], str(e)[:12]], template='error')
 
     if opt.tag != 'cache':
         with open('run_log.txt', 'a') as f:
             f.writelines('    Error: ' + str(e)[:120] + '\n')
 
-    # print(e)
-    raise Exception('Error')  # 再引起一个异常，这样才能打印之前的trace back信息
+    raise Exception('Error')  # 再引起一个异常，这样才能打印之前的错误信息

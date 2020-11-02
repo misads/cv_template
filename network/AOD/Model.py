@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import os
 
-from .FFA import FFA
+from .aod import AODnet
 
 from options import opt
 
@@ -24,7 +24,7 @@ class Model(BaseModel):
     def __init__(self, opt):
         super(Model, self).__init__()
         self.opt = opt
-        self.cleaner = FFA().to(device=opt.device)
+        self.cleaner = AODnet().to(device=opt.device)
         #####################
         #    Init weights
         #####################
@@ -32,30 +32,37 @@ class Model(BaseModel):
 
         print_network(self.cleaner)
 
-        self.g_optimizer = get_optimizer(opt, self.cleaner)
-        self.scheduler = get_scheduler(opt, self.g_optimizer)
+        self.optimizer = get_optimizer(opt, self.cleaner)
+        self.scheduler = get_scheduler(opt, self.optimizer)
 
         self.avg_meters = ExponentialMovingAverage(0.95)
         self.save_dir = os.path.join(opt.checkpoint_dir, opt.tag)
 
-    def update(self, x, y):
+    def update(self, sample):
+        y = sample['label'].to(opt.device)
 
-        # L1 & SSIM loss
-        cleaned = self.cleaner(x)
+        output = self.forward(sample)
 
-        loss = get_default_loss(cleaned, y, self.avg_meters)
+        loss = get_default_loss(output, y, self.avg_meters)
 
-        self.g_optimizer.zero_grad()
+        self.optimizer.zero_grad()
         loss.backward()
-        self.g_optimizer.step()
+        self.optimizer.step()
 
-        return {'recovered': cleaned}
+        return {'output': output}
 
-    def forward(self, x):
+    def forward(self, sample):
+        x = sample['input'].to(opt.device)
         return self.cleaner(x)
 
-    def inference(self, x, progress_idx=None):
-        return super(Model, self).inference(x, progress_idx)
+    def write_train_summary(self, update_return):
+        pass
+
+    def step_scheduler(self):
+        self.scheduler.step()
+
+    def get_lr(self):
+        return self.scheduler.get_lr()[0]
 
     def load(self, ckpt_path):
         load_dict = {
@@ -64,7 +71,7 @@ class Model(BaseModel):
 
         if opt.resume:
             load_dict.update({
-                'optimizer': self.g_optimizer,
+                'optimizer': self.optimizer,
                 'scheduler': self.scheduler,
             })
             utils.color_print('Load checkpoint from %s, resume training.' % ckpt_path, 3)
@@ -81,7 +88,7 @@ class Model(BaseModel):
         save_path = os.path.join(self.save_dir, save_filename)
         save_dict = {
             'cleaner': self.cleaner,
-            'optimizer': self.g_optimizer,
+            'optimizer': self.optimizer,
             'scheduler': self.scheduler,
             'epoch': which_epoch
         }

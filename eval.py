@@ -3,6 +3,7 @@
 from skimage.measure import compare_psnr as psnr
 from skimage.measure import compare_ssim as ski_ssim  # deprecated
 
+import torch
 import dataloader as dl
 from options import opt
 from mscv.summary import write_loss, write_image
@@ -25,16 +26,17 @@ def evaluate(model, dataloader, epoch, writer, logger, data_name='val'):
     total_ssim = 0.0
     ct_num = 0
     # print('Start testing ' + tag + '...')
-    for i, data in enumerate(dataloader):
+    for i, sample in enumerate(dataloader):
         utils.progress_bar(i, len(dataloader), 'Eva... ')
 
-        input, path = data['input'], data['path']
-        img = input.to(device=opt.device)
-        recovered = model.inference(img, progress_idx=(i, len(dataloader)))
+        path = sample['path']
+        with torch.no_grad():
+            recovered = model(sample)
 
         if data_name == 'val':
-            label = data['label']
+            label = sample['label']
             label = tensor2im(label)
+            recovered = tensor2im(recovered)
 
             ct_num += 1
 

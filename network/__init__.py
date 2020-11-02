@@ -1,14 +1,18 @@
-from .Default.Model import Model as Default
+from .AOD.Model import Model as AOD
+from .FFA.Model import Model as FFA
+
 
 models = {
-    'default': Default,  # if --model is not specified
-
+    'AOD': AOD,
+    'FFA': FFA,  # --model MUST be specified now
 }
 
 
 def get_model(model: str):
+    if model is None:
+        raise AttributeError('--model MUST be specified now, available: {%s}.' % ('|'.join(models.keys())))
+
     if model in models:
         return models[model]
     else:
-        raise Exception('No such model: "%s", available: {%s}.' % (model, '|'.join(models.keys())))
-
+        raise AttributeError('No such model: "%s", available: {%s}.' % (model, '|'.join(models.keys())))
