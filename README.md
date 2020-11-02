@@ -1,6 +1,10 @@
 # cv_template
 
 　　一个图像复原或分割的Baseline，可以用于去雾🌫、去雨🌧、去模糊、夜景🌃复原、超分辨率👾、像素级分割等等。
+  
+  
+  <img alt='preview' src='http://www.xyu.ink/wp-content/uploads/2020/11/dehaze.png' height=400/>
+
 
 ## Highlights
 
@@ -88,6 +92,8 @@ See ALL Running Commands:
 `--epochs`是训练的代数。  
 
 `-b`参数是`batch_size`，可以根据显存的大小调整。  
+
+`-w`参数是`num_workers`，即读取数据的进程数，如果需要用pdb来debug，将这个参数设为0。  
 
 `--lr`是初始学习率。
 
