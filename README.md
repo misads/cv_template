@@ -85,17 +85,23 @@ cv_template
 CUDA_VISIBLE_DEVICES=0 python train.py --tag ffa --model FFA --epochs 20 -b 2 --lr 0.0001 # --tag用于区分每次实验，可以是任意字符串
 ```
 
+　　训练的中途可以在验证集上验证，添加`--val_freq 10`参数可以指定10个epoch验证一次，添加`--save_freq 10`参数可以指定10个epoch保存一次checkpoint。
+
 ③ 验证训练的模型
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python eval.py --model FFA -b 2 --load checkpoints/ffa/20_FFA.pt
 ```
 
+　　验证的结果会保存在`results/<tag>`目录下，如果不指定`--tag`，默认的`tag`为`cache`。
+
 ④ 恢复中断的训练
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python train.py --tag ffa_resume --model FFA --epochs 20 -b 2 --lr 0.0001 --load checkpoints/ffa/10_FFA.pt --resume
 ```
+
+　　`--load`的作用是载入网络权重；`--resume`参数会同时加载优化器参数和epoch信息(继续之前的训练)，可以根据需要添加。
 
 ⑤ 在测试集上测试
 
