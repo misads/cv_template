@@ -48,7 +48,7 @@ def parse_args():
     parser.add_argument('--crop', type=int, default=256, help='then crop to this size')
 
     # for datasets
-    parser.add_argument('--dataset', choices=['ITS', 'OTS'], default='ITS', help='training dataset')
+    parser.add_argument('--dataset', default='', help='training dataset')
     parser.add_argument('--val_set', type=str, default=None)
     parser.add_argument('--test_set', type=str, default=None)
 
