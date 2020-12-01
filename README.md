@@ -141,7 +141,7 @@ CUDA_VISIBLE_DEVICES=0 python submit.py --model FFA --load checkpoints/ffa/20_FF
 
 ### 清除不需要的实验记录
 
-　　运行 `python clear.py --tag your_tag` 可以清除不需要的实验记录，注意这是不可恢复的，如果你不确定你在做什么，请不要使用这条命令。
+　　运行 `python clear.py --tag <your_tag>` 可以清除不需要的实验记录，注意这是不可恢复的，如果你不确定你在做什么，请不要使用这条命令。
 
 
 ## 如何添加新的模型：
@@ -149,14 +149,16 @@ CUDA_VISIBLE_DEVICES=0 python submit.py --model FFA --load checkpoints/ffa/20_FF
 ```
 如何添加新的模型：
 
-① 复制network目录下的Default文件夹，改成另外一个名字(比如MyNet)。
+① 复制network目录下的FFA文件夹，改成另外一个名字(比如MyNet)。
 
-② 在network/__init__.py中import你的Model并且在models = {}中添加它。
+② 仿照FFA的model.py，修改自己的网络结构、损失函数和优化过程。
+
+③ 在network/__init__.py中import你的Model并且在models = {}中添加它。
     from MyNet.Model import Model as MyNet
     models = {
         'default': Default,
         'MyNet': MyNet,
     }
 
-③ 尝试 python train.py --model MyNet 看能否成功运行
+④ 运行 python train.py --model MyNet 看能否正常训练
 ```
