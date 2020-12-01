@@ -70,6 +70,14 @@ mscv >= 0.0.3
 python utils/make_filelist.py --input datasets/images/ --label /datasets/labels --val_ratio 0.1 --out datasets
 ```
 
+　　生成好train.txt和val.txt后目录结构是这样的：
+  
+```yml
+cv_template
+    └── datasets
+          ├── train.txt      
+          └── val.txt    
+```
 
 ② 训练模型
 
