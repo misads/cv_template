@@ -51,12 +51,25 @@ mscv >= 0.0.3
 
 ① 生成输入图片和标签对应的train.txt和val.txt
 
+　　新建一个datasets文件夹，制作文件列表train.txt和val.txt并把它们放在datasets目录下，train.txt和val.txt需要满足这样的格式：每行是一对样本的输入和标签的绝对路径，用空格隔开。如下所示：
+  
+```yml
+# datasets/train.txt
+/home/xhy/datasets/RESIDE/ITS_v2/images/94_4.png /home/xhy/datasets/RESIDE/ITS_v2/labels/94.png
+/home/xhy/datasets/RESIDE/ITS_v2/images/687_6.png /home/xhy/datasets/RESIDE/ITS_v2/labels/687.png
+/home/xhy/datasets/RESIDE/ITS_v2/images/441_3.png /home/xhy/datasets/RESIDE/ITS_v2/labels/441.png
+/home/xhy/datasets/RESIDE/ITS_v2/images/102_7.png /home/xhy/datasets/RESIDE/ITS_v2/labels/102.png
+/home/xhy/datasets/RESIDE/ITS_v2/images/988_2.png /home/xhy/datasets/RESIDE/ITS_v2/labels/988.png
+/home/xhy/datasets/RESIDE/ITS_v2/images/860_8.png /home/xhy/datasets/RESIDE/ITS_v2/labels/860.png
+```
+
+　　如果输入图片和标签是一一对应的并且存放在两个文件夹中，可以使用下面的脚本生成：
+
 ```bash
 # !- bash
 python utils/make_filelist.py --input datasets/images/ --label /datasets/labels --val_ratio 0.1 --out datasets
 ```
 
-　　这会在`datasets`目录下生成一个train.txt和一个val.txt，每行是一对样本的输入和gt的绝对路径，用空格隔开。
 
 ② 训练模型
 
