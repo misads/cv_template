@@ -9,14 +9,14 @@
 ## Highlights
 
 - 特色功能
-  - [x] 快速搭建baseline，只需生成filelist，无需修改代码即可运行
+  - [x] 快速搭建baseline，只需生成输入和标签对应的txt文件，无需修改代码即可运行
   - [x] (参数控制)多模型
   - [x] 训练过程监控
   - [x] 命令行日志记录
   - [x] 支持TTA
   - [x] 自动化超参数搜索🔍
 
-
+<!-- 
 ## To do List
 
 - 模型
@@ -35,9 +35,9 @@
   - [ ] ttach库
 - 其他Tricks
   - [ ] 使用fp_16训练，提高训练速度
-  - [ ] One_Cycle 学习率
+  - [ ] One_Cycle 学习率 -->
 
-## Prerequisites
+## 环境需求
 
 ```yaml
 python >= 3.6
@@ -47,43 +47,51 @@ utils-misc >= 0.0.5
 mscv >= 0.0.3
 ```
 
-## 生成文件列表的txt文件
+## 使用方法
+
+### 训练和验证模型
+
+① 生成输入图片和标签对应的train.txt和val.txt
 
 ```bash
 # !- bash
 python utils/make_filelist.py --input datasets/images/ --label /datasets/labels --val_ratio 0.1 --out datasets
 ```
 
-## Code Usage
+　　这会在`datasets`目录下生成一个train.txt和一个val.txt，每行是一对样本的输入和gt的绝对路径，用空格隔开。
+
+② 训练模型
 
 ```bash
-Code Usage:
-Training:
-    python train.py --tag your_tag --model FFA --epochs 20 -b 2 --lr 0.0001 --gpu 0
-
-Finding Best Hyper Params:  # 需先设置好sweep.yml
-    python grid_search.py --run
-
-Resume Training (or fine-tune):
-    python train.py --tag your_tag --model FFA --epochs 20 -b 2 --load checkpoints/your_tag/9_FFA.pt --resume --gpu 0
-
-Eval:
-    python eval.py --model FFA -b 2 --load checkpoints/your_tag/9_FFA.pt --gpu 1
-
-Generate Submission:
-    python submit.py --model FFA --load checkpoints/your_tag/9_FFA.pt -b 2 --gpu 0
-
-See Running Log:
-    cat logs/your_tag/log.txt
-
-Clear(delete all files with the tag, BE CAREFUL to use):
-    python clear.py --tag your_tag
-
-See ALL Running Commands:
-    cat run_log.txt
+CUDA_VISIBLE_DEVICES=0 python train.py --tag ffa --model FFA --epochs 20 -b 2 --lr 0.0001 # --tag用于区分每次实验，可以是任意字符串
 ```
 
-参数用法：
+③ 验证训练的模型
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python eval.py --model FFA -b 2 --load checkpoints/ffa/20_FFA.pt
+```
+
+④ 恢复中断的训练
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python train.py --tag ffa_resume --model FFA --epochs 20 -b 2 --lr 0.0001 --load checkpoints/ffa/10_FFA.pt --resume
+```
+
+⑤ 在测试集上测试
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python submit.py --model FFA --load checkpoints/ffa/20_FFA.pt
+```
+
+### 记录和查看日志
+
+　　所有运行的命令和运行命令的时间戳会自动记录在`run_log.txt`中。
+
+　　不同实验的详细日志和Tensorboard日志文件会记录在`logs/<tag>`文件夹中，checkpoint文件会保存在`checkpoints/<tag>`文件夹中。
+
+
+### 参数说明
 
 `--tag`参数是一次操作(`train`或`eval`)的标签，日志会保存在`logs/标签`目录下，保存的模型会保存在`checkpoints/标签`目录下。  
 
@@ -104,6 +112,12 @@ See ALL Running Commands:
 `--gpu`指定`gpu id`，目前只支持单卡训练。  
 
 另外还可以通过参数调整优化器、学习率衰减、验证和保存模型的频率等，详细请查看`python train.py --help`。  
+
+
+### 清除不需要的实验记录
+
+　　运行 `python clear.py --tag your_tag` 可以清除不需要的实验记录，注意这是不可恢复的，如果你不确定你在做什么，请不要使用这条命令。
+
 
 ## 如何添加新的模型：
 
