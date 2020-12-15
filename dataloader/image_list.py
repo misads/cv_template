@@ -1,36 +1,13 @@
 # encoding=utf-8
 import pdb
-
-import torchvision.transforms.functional as F
 import os
-from PIL import Image
 import torch.utils.data.dataset as dataset
-from torchvision import transforms
-
 import misc_utils as utils
 import random
 import numpy as np
 import cv2
 
-
-def paired_cut(img_1: Image.Image, img_2: Image.Image, crop_size):
-    def get_params(img, output_size):
-        w, h = img.size
-        th, tw = output_size
-        i = random.randint(0, h - th)
-        j = random.randint(0, w - tw)
-        return i, j, th, tw
-
-    r = random.randint(-1, 6)
-    if r >= 0:
-        img_1 = img_1.transpose(r)
-        img_2 = img_2.transpose(r)
-
-    i, j, h, w = get_params(img_1, crop_size)
-    img_1 = F.crop(img_1, i, j, h, w)
-    img_2 = F.crop(img_2, i, j, h, w)
-
-    return img_1, img_2
+from dataloader.transforms.custom_transform import read_image
 
 
 class ListTrainValDataset(dataset.Dataset):
@@ -48,7 +25,7 @@ class ListTrainValDataset(dataset.Dataset):
 
     """
 
-    def __init__(self, file_list, scale=None, crop=None, aug=True, norm=False, max_size=None):
+    def __init__(self, file_list, transforms, max_size=None):
         self.im_names = []
         self.labels = []
         with open(file_list, 'r') as f:
@@ -60,19 +37,7 @@ class ListTrainValDataset(dataset.Dataset):
                 self.im_names.append(img)
                 self.labels.append(label)
 
-        self.trans_dict = {0: Image.FLIP_LEFT_RIGHT, 1: Image.FLIP_TOP_BOTTOM, 2: Image.ROTATE_90, 3: Image.ROTATE_180,
-                           4: Image.ROTATE_270, 5: Image.TRANSPOSE, 6: Image.TRANSVERSE}
-
-        if isinstance(scale, int):
-            scale = (scale, scale)
-
-        self.scale = scale
-        if isinstance(crop, int):
-            crop = (crop, crop)
-
-        self.crop = crop
-        self.aug = aug
-        self.norm = norm
+        self.transforms = transforms
         self.max_size = max_size
 
     def __getitem__(self, index):
@@ -82,34 +47,29 @@ class ListTrainValDataset(dataset.Dataset):
             index(int): index
 
         Returns:
-            {'input': input,
-             'label': label,
-             'path': path
+            {
+                'input': input,
+                'label': label,
+                'path': path,
             }
 
         """
 
-        input = Image.open(self.im_names[index]).convert("RGB")
-        label = Image.open(self.labels[index]).convert("RGB")
+        input = read_image(self.im_names[index])
+        gt = read_image(self.labels[index]) 
 
-        if self.crop:
-            input, label = paired_cut(input, label, self.crop)
+        sample = self.transforms(**{
+            'image': input,
+            'gt': gt,
+        })
 
-        if self.scale:
-            input = F.resize(input, self.scale)
-            label = F.resize(label, self.scale)
+        sample = {
+            'input': sample['image'],
+            'label': sample['gt'],
+            'path': self.im_names[index],
+        }
 
-        r = random.randint(0, 7)
-        if self.aug and r != 7:
-            input = input.transpose(self.trans_dict[r])
-            label = label.transpose(self.trans_dict[r])
-
-        if self.norm:  # 分割可以norm 复原不能norm
-            input = F.normalize(F.to_tensor(input), mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        else:
-            input = F.to_tensor(input)
-            label = F.to_tensor(label)
-        return {'input': input, 'label': label, 'path': self.im_names[index]}
+        return sample
 
     def __len__(self):
         if self.max_size is not None:
@@ -131,7 +91,7 @@ class ListTestDataset(dataset.Dataset):
             input, file_name = data
 
     """
-    def __init__(self, file_list, scale=None, norm=False, max_size=None):
+    def __init__(self, file_list, transforms, max_size=None):
         self.im_names = []
         with open(file_list, 'r') as f:
             lines = f.readlines()
@@ -140,72 +100,28 @@ class ListTestDataset(dataset.Dataset):
                 img = line
                 self.im_names.append(img)
 
-        if isinstance(scale, int):
-            scale = (scale, scale)
-
-        self.scale = scale
-        self.norm = norm
+        self.transforms = transforms
         self.max_size = max_size
 
     def __getitem__(self, index):
 
         input = Image.open(self.im_names[index]).convert("RGB")
 
-        if self.scale:
-            input = F.resize(input, self.scale)
+        sample = self.transforms(**{
+            'image': input,
+            'gt': input,
+        })
 
-        if self.norm:
-            input = F.normalize(F.to_tensor(input), mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        else:
-            input = F.to_tensor(input)
+        sample = {
+            'input': sample['image'],
+            'path': self.im_names[index],
+        }
 
-        return {'input': input, 'path': self.im_names[index]}
+        return sample
 
     def __len__(self):
         if self.max_size is not None:
             return min(self.max_size, len(self.im_names))
 
         return len(self.im_names)
-
-
-def preview_dataset(dataset, path='path'):
-    for i, data in enumerate(dataset):
-        if i == min(10, len(dataset)):
-            break
-
-        c = 'input'
-        img = data[c]
-        img = np.array(img)
-        img = np.transpose(img, (1, 2, 0))
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        if path in data:
-            cv2.putText(img, os.path.basename(data[path]), (1, 35), 0, 1, (255, 255, 255), 2)
-
-        if 'label' in data:
-            label = data['label']
-            label = np.array(label)
-            label = np.transpose(label, (1, 2, 0))
-            label = cv2.cvtColor(label, cv2.COLOR_BGR2RGB)
-            cv2.putText(label, 'gt', (1, 35), 0, 1, (255, 255, 255), 2)
-
-            preview = np.hstack((img, label))
-
-        else:
-            preview = img
-
-        cv2.imshow('preview', preview)
-
-        cv2.waitKey(0)
-
-
-if __name__ == '__main__':
-
-    dataset = ListTrainValDataset('../datasets/train.txt', crop=256, aug=False)
-    preview_dataset(dataset)
-
-    # dataset = ListTestDataset('../datasets/test.txt', scale=256)
-    # preview_dataset(dataset)
-
-
-
 

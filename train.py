@@ -25,50 +25,60 @@ from mscv.summary import create_summary_writer, write_meters_loss
 
 import misc_utils as utils
 
-# 路径
-save_root = os.path.join(opt.checkpoint_dir, opt.tag)
-log_root = os.path.join(opt.log_dir, opt.tag)
+# 初始化
+with torch.no_grad():
+    # 初始化路径
+    save_root = os.path.join(opt.checkpoint_dir, opt.tag)
+    log_root = os.path.join(opt.log_dir, opt.tag)
 
-utils.try_make_dir(save_root)
-utils.try_make_dir(log_root)
+    utils.try_make_dir(save_root)
+    utils.try_make_dir(log_root)
 
-# Dataloader
-train_dataloader = dl.train_dataloader
-val_dataloader = dl.val_dataloader
+    # Dataloader
+    train_dataloader = dl.train_dataloader
+    val_dataloader = dl.val_dataloader
 
-# 初始化日志
-logger = init_log(training=True)
+    # 初始化日志
+    logger = init_log(training=True)
 
-# 初始化模型
-Model = get_model(opt.model)
-model = Model(opt)
+    # 初始化模型
+    Model = get_model(opt.model)
+    model = Model(opt)
 
-# 暂时还不支持多GPU
-# if len(opt.gpu_ids):
-#     model = torch.nn.DataParallel(model, device_ids=opt.gpu_ids)
-model = model.to(device=opt.device)
+    # 暂时还不支持多GPU
+    # if len(opt.gpu_ids):
+    #     model = torch.nn.DataParallel(model, device_ids=opt.gpu_ids)
+    model = model.to(device=opt.device)
 
-# 加载预训练模型，恢复中断的训练
-if opt.load:
-    load_epoch = model.load(opt.load)
-    start_epoch = load_epoch + 1 if opt.resume else 1
-else:
-    start_epoch = 1
+    # 加载预训练模型，恢复中断的训练
+    if opt.load:
+        load_epoch = model.load(opt.load)
+        start_epoch = load_epoch + 1 if opt.resume else 1
+    else:
+        start_epoch = 1
 
-# 开始训练
-model.train()
+    # 开始训练
+    model.train()
 
-# 计算开始和总共的step
-print('Start training...')
-start_step = (start_epoch - 1) * len(train_dataloader)
-global_step = start_step
-total_steps = opt.epochs * len(train_dataloader)
-start = time.time()
+    # 计算开始和总共的step
+    print('Start training...')
+    start_step = (start_epoch - 1) * len(train_dataloader)
+    global_step = start_step
+    total_steps = opt.epochs * len(train_dataloader)
+    start = time.time()
 
-# Tensorboard初始化
-writer = create_summary_writer(log_root)
+    # Tensorboard初始化
+    writer = create_summary_writer(log_root)
 
-start_time = time.time()
+    start_time = time.time()
+
+    # 在日志记录transforms
+    logger.info('train_trasforms: ' +str(train_dataloader.dataset.transforms))
+    logger.info('===========================================')
+    if val_dataloader is not None:
+        logger.info('val_trasforms: ' +str(val_dataloader.dataset.transforms))
+    logger.info('===========================================')
+
 
 try:
     # 训练循环
