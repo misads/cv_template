@@ -4,7 +4,7 @@ from skimage.measure import compare_psnr as psnr
 from skimage.measure import compare_ssim as ski_ssim  # deprecated
 
 import torch
-import dataloader as dl
+import dataloader.dataloaders as dl
 from options import opt
 from mscv.summary import write_loss, write_image
 from mscv.image import tensor2im

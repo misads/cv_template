@@ -14,7 +14,7 @@ import torch
 from torch import optim
 from torch.autograd import Variable
 
-import dataloader as dl
+import dataloader.dataloaders as dl
 from network import get_model
 from eval import evaluate
 
