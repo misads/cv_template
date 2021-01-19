@@ -105,7 +105,7 @@ class ListTestDataset(dataset.Dataset):
 
     def __getitem__(self, index):
 
-        input = Image.open(self.im_names[index]).convert("RGB")
+        input = read_image(self.im_names[index])
 
         sample = self.transforms(**{
             'image': input,

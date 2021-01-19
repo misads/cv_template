@@ -1,11 +1,20 @@
-from .AOD.Model import Model as AOD
-from .FFA.Model import Model as FFA
+"""
+现在network目录中的模型将会自动检测，不再需要手动导入
+"""
+import os
+import importlib
+
+model_names = os.listdir('network')
 
 
-models = {
-    'AOD': AOD,
-    'FFA': FFA,  # --model MUST be specified now
-}
+models = {}
+
+for name in model_names:
+    if os.path.isdir(f'network/{name}'):
+        if name == '__pycache__':
+            continue
+
+        models[name] = importlib.import_module(f'.{name}.Model', 'network').Model
 
 
 def get_model(model: str):

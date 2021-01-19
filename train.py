@@ -20,7 +20,7 @@ from eval import evaluate
 
 from options import opt
 
-from utils import init_log
+from utils import init_log, load_meta, save_meta
 from mscv.summary import create_summary_writer, write_meters_loss
 
 import misc_utils as utils
@@ -40,6 +40,10 @@ with torch.no_grad():
 
     # 初始化日志
     logger = init_log(training=True)
+
+    # 初始化训练的meta信息
+    meta = load_meta(new=True)
+    save_meta(meta)
 
     # 初始化模型
     Model = get_model(opt.model)
@@ -120,10 +124,23 @@ try:
 
         model.step_scheduler()
 
+    meta = load_meta()
+    meta[-1]['finishtime'] = utils.get_time_stamp()
+    save_meta(meta)
+
 except Exception as e:
 
     if opt.tag != 'cache':
         with open('run_log.txt', 'a') as f:
             f.writelines('    Error: ' + str(e)[:120] + '\n')
 
+    meta = load_meta()
+    meta[-1]['finishtime'] = utils.get_time_stamp()
+    save_meta(meta)
+
     raise Exception('Error')  # 再引起一个异常，这样才能打印之前的错误信息
+
+except:  # 其他异常，如键盘中断等
+    meta = load_meta()
+    meta[-1]['finishtime'] = utils.get_time_stamp()
+    save_meta(meta)
