@@ -156,12 +156,7 @@ CUDA_VISIBLE_DEVICES=0 python submit.py --model FFA --load checkpoints/ffa/20_FF
 
 ② 仿照FFA的model.py，修改自己的网络结构、损失函数和优化过程。
 
-③ 在network/__init__.py中import你的Model并且在models = {}中添加它。
-    from MyNet.Model import Model as MyNet
-    models = {
-        'default': Default,
-        'MyNet': MyNet,
-    }
+③ 确认network/<MyNet>/model.py正确，现在network下的目录会被自动检测到，不再需要手动添加。
 
 ④ 运行 python train.py --model MyNet 看能否正常训练
 ```
